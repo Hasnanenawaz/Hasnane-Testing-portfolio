@@ -1,0 +1,9 @@
+{
+  "name": "Hasnane Nawaz Portfolio",
+  "short_name": "Hasnane",
+  "description": "Social media marketing and growth strategy portfolio.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8e8",
+  "theme_color": "#b8ff2c"
+}

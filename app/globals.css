@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 43 100% 95%;
+  --foreground: 0 0% 7%;
+  --muted: 43 45% 89%;
+  --muted-foreground: 0 0% 28%;
+  --primary: 79 100% 59%;
+  --primary-foreground: 0 0% 7%;
+  --accent: 184 73% 63%;
+  --accent-foreground: 0 0% 7%;
+  --border: 0 0% 7%;
+}
+
+.dark {
+  --background: 0 0% 7%;
+  --foreground: 43 100% 95%;
+  --muted: 0 0% 14%;
+  --muted-foreground: 43 35% 78%;
+  --primary: 79 100% 59%;
+  --primary-foreground: 0 0% 7%;
+  --accent: 8 100% 67%;
+  --accent-foreground: 0 0% 7%;
+  --border: 43 100% 95%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(17, 17, 17, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(17, 17, 17, 0.04) 1px, transparent 1px),
+    hsl(var(--background));
+  background-size: 34px 34px;
+  color: hsl(var(--foreground));
+  text-rendering: optimizeLegibility;
+}
+
+.dark body {
+  background:
+    linear-gradient(90deg, rgba(255, 248, 232, 0.06) 1px, transparent 1px),
+    linear-gradient(rgba(255, 248, 232, 0.06) 1px, transparent 1px),
+    hsl(var(--background));
+}
+
+::selection {
+  background: #b8ff2c;
+  color: #111111;
+}
+
+@layer utilities {
+  .brutal-card {
+    @apply border-2 border-foreground bg-background shadow-brutal transition-transform duration-200;
+  }
+
+  .brutal-card:hover {
+    @apply -translate-x-1 -translate-y-1 shadow-brutal-lg;
+  }
+
+  .section-pad {
+    @apply py-20 md:py-28;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
