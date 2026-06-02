@@ -546,6 +546,7 @@ export default function AdminPage() {
                 style={{
                   flex: 1, padding: '12px', borderRadius: 10, border: `1px solid ${c.border}`,
                   background: 'transparent', color: c.muted, cursor: 'pointer', fontWeight: 600,
+                  page.tsx
                 }}
               >Cancel</button>
               <button
