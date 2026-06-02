@@ -1,9 +1,38 @@
 'use client'
 import { useState, useEffect, useRef, ChangeEvent, DragEvent, KeyboardEvent } from 'react'
+import { useTheme } from 'next-themes'
 import type { Blog } from '@/lib/supabase'
 
+// ─── Theme palettes ────────────────────────────────────────────────────────
+type Palette = {
+  bg: string; card: string; border: string; text: string; muted: string; green: string
+  inputBg: string; inputBorder: string; dashed: string; placeholder: string
+  pubBg: string; pubText: string; pubBorder: string
+  draftBg: string; draftText: string; draftBorder: string
+  editBg: string; editText: string; delBg: string; delText: string
+  accent: string; accentText: string; disabledBg: string; disabledText: string; error: string
+}
+
+const darkPalette: Palette = {
+  bg: '#071410', card: '#0d1f18', border: '#1a3328', text: '#e8f5e9', muted: '#7ab893', green: '#5cb87a',
+  inputBg: '#0f1f17', inputBorder: '#2d4a3e', dashed: '#3a6b4f', placeholder: '#1a3328',
+  pubBg: '#1a4a2e', pubText: '#5cb87a', pubBorder: '#2e7d52',
+  draftBg: '#2a1a0a', draftText: '#d4873a', draftBorder: '#7a4a1a',
+  editBg: '#1e4a35', editText: '#5cb87a', delBg: '#2a1010', delText: '#e05252',
+  accent: '#2e7d52', accentText: '#ffffff', disabledBg: '#1e3a2a', disabledText: '#4a7a5e', error: '#ff6b6b',
+}
+
+const lightPalette: Palette = {
+  bg: '#f7f2e7', card: '#ffffff', border: '#e2dac6', text: '#15241c', muted: '#5c7a68', green: '#2e7d52',
+  inputBg: '#ffffff', inputBorder: '#cfc6ad', dashed: '#9bb8a5', placeholder: '#ece4d0',
+  pubBg: '#d8f3e2', pubText: '#1e6b3e', pubBorder: '#2e7d52',
+  draftBg: '#fbecd6', draftText: '#a8651a', draftBorder: '#d4a574',
+  editBg: '#d8f3e2', editText: '#2e7d52', delBg: '#fbe0e0', delText: '#c02626',
+  accent: '#2e7d52', accentText: '#ffffff', disabledBg: '#e2dac6', disabledText: '#a39d88', error: '#d63333',
+}
+
 // ─── Rich Text Editor ────────────────────────────────────────────────────────
-function BlogEditor({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function BlogEditor({ value, onChange, c }: { value: string; onChange: (v: string) => void; c: Palette }) {
   return (
     <textarea
       value={value}
@@ -12,8 +41,8 @@ function BlogEditor({ value, onChange }: { value: string; onChange: (v: string) 
       placeholder="Write your blog content here... (Markdown or plain HTML supported)"
       style={{
         width: '100%', padding: '12px', borderRadius: '8px',
-        border: '1.5px solid #2d4a3e', background: '#0f1f17',
-        color: '#e8f5e9', fontSize: '14px', fontFamily: 'monospace',
+        border: `1.5px solid ${c.inputBorder}`, background: c.inputBg,
+        color: c.text, fontSize: '14px', fontFamily: 'monospace',
         resize: 'vertical', lineHeight: 1.7, outline: 'none',
         boxSizing: 'border-box',
       }}
@@ -22,7 +51,7 @@ function BlogEditor({ value, onChange }: { value: string; onChange: (v: string) 
 }
 
 // ─── Image Uploader ──────────────────────────────────────────────────────────
-function ImageUploader({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function ImageUploader({ value, onChange, c }: { value: string; onChange: (v: string) => void; c: Palette }) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -52,12 +81,12 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (v: strin
         onDragOver={(e: DragEvent) => e.preventDefault()}
         onDrop={(e: DragEvent) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]) }}
         style={{
-          border: '2px dashed #3a6b4f', borderRadius: '10px', padding: '24px',
-          textAlign: 'center', cursor: 'pointer', background: '#0f1f17',
-          color: '#7ab893', fontSize: '14px', transition: 'border-color 0.2s',
+          border: `2px dashed ${c.dashed}`, borderRadius: '10px', padding: '24px',
+          textAlign: 'center', cursor: 'pointer', background: c.inputBg,
+          color: c.muted, fontSize: '14px', transition: 'border-color 0.2s',
         }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = '#5cb87a')}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = '#3a6b4f')}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = c.green)}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = c.dashed)}
       >
         {uploading ? '⏳ Uploading...' : '📷 Click or drag to upload cover image'}
       </div>
@@ -68,7 +97,7 @@ function ImageUploader({ value, onChange }: { value: string; onChange: (v: strin
         style={{ display: 'none' }}
         onChange={e => handleFile(e.target.files?.[0])}
       />
-      {error && <p style={{ color: '#ff6b6b', fontSize: '12px', marginTop: 4 }}>{error}</p>}
+      {error && <p style={{ color: c.error, fontSize: '12px', marginTop: 4 }}>{error}</p>}
       {value && (
         <div style={{ marginTop: 12, position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -108,11 +137,13 @@ function BlogForm({
   onSave,
   onCancel,
   saving,
+  c,
 }: {
   initial: Blog | null
   onSave: (form: BlogFormData) => void
   onCancel: () => void
   saving: boolean
+  c: Palette
 }) {
   const [form, setForm] = useState<BlogFormData>(
     initial
@@ -131,11 +162,11 @@ function BlogForm({
   const set = <K extends keyof BlogFormData>(k: K, v: BlogFormData[K]) =>
     setForm(f => ({ ...f, [k]: v }))
 
-  const label: React.CSSProperties = { color: '#7ab893', fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block' }
+  const label: React.CSSProperties = { color: c.muted, fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block' }
   const input: React.CSSProperties = {
     width: '100%', padding: '10px 12px', borderRadius: 8,
-    border: '1.5px solid #2d4a3e', background: '#0f1f17',
-    color: '#e8f5e9', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+    border: `1.5px solid ${c.inputBorder}`, background: c.inputBg,
+    color: c.text, fontSize: 14, outline: 'none', boxSizing: 'border-box',
   }
 
   return (
@@ -153,14 +184,14 @@ function BlogForm({
       </div>
       <div>
         <label style={label}>Cover Image</label>
-        <ImageUploader value={form.cover_image} onChange={v => set('cover_image', v)} />
+        <ImageUploader value={form.cover_image} onChange={v => set('cover_image', v)} c={c} />
       </div>
       <div>
         <label style={label}>Content</label>
-        <BlogEditor value={form.content} onChange={v => set('content', v)} />
+        <BlogEditor value={form.content} onChange={v => set('content', v)} c={c} />
       </div>
-      <div style={{ borderTop: '1px solid #1e3a2a', paddingTop: 20 }}>
-        <p style={{ color: '#5cb87a', fontWeight: 700, fontSize: 13, marginBottom: 16 }}>🔍 SEO Settings</p>
+      <div style={{ borderTop: `1px solid ${c.border}`, paddingTop: 20 }}>
+        <p style={{ color: c.green, fontWeight: 700, fontSize: 13, marginBottom: 16 }}>🔍 SEO Settings</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <label style={label}>Meta Title (defaults to blog title)</label>
@@ -175,9 +206,9 @@ function BlogForm({
           </div>
         </div>
       </div>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', color: '#e8f5e9' }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', color: c.text }}>
         <input type="checkbox" checked={form.published} onChange={e => set('published', e.target.checked)}
-          style={{ width: 18, height: 18, accentColor: '#5cb87a' }} />
+          style={{ width: 18, height: 18, accentColor: c.green }} />
         Publish (visible on /blog)
       </label>
       <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
@@ -186,8 +217,8 @@ function BlogForm({
           disabled={!form.title || saving}
           style={{
             flex: 1, padding: '14px', borderRadius: 10, border: 'none',
-            background: form.title ? '#2e7d52' : '#1e3a2a',
-            color: form.title ? '#fff' : '#4a7a5e', fontWeight: 700,
+            background: form.title ? c.accent : c.disabledBg,
+            color: form.title ? c.accentText : c.disabledText, fontWeight: 700,
             fontSize: 15, cursor: form.title ? 'pointer' : 'not-allowed',
             transition: 'background 0.2s',
           }}
@@ -197,8 +228,8 @@ function BlogForm({
         <button
           onClick={onCancel}
           style={{
-            padding: '14px 24px', borderRadius: 10, border: '1.5px solid #2d4a3e',
-            background: 'transparent', color: '#7ab893', fontWeight: 600,
+            padding: '14px 24px', borderRadius: 10, border: `1.5px solid ${c.inputBorder}`,
+            background: 'transparent', color: c.muted, fontWeight: 600,
             fontSize: 14, cursor: 'pointer',
           }}
         >Cancel</button>
@@ -209,6 +240,12 @@ function BlogForm({
 
 // ─── Main Admin Page ─────────────────────────────────────────────────────────
 export default function AdminPage() {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const isLight = mounted && resolvedTheme === 'light'
+  const c = isLight ? lightPalette : darkPalette
+
   const [authed, setAuthed] = useState<boolean | null>(null)
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
@@ -286,17 +323,10 @@ export default function AdminPage() {
     await loadBlogs()
   }
 
-  const bg = '#071410'
-  const card = '#0d1f18'
-  const border = '#1a3328'
-  const green = '#5cb87a'
-  const text = '#e8f5e9'
-  const muted = '#7ab893'
-
   if (authed === null) {
     return (
-      <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: muted, fontSize: 16 }}>Loading...</p>
+      <div style={{ minHeight: '100vh', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: c.muted, fontSize: 16 }}>Loading...</p>
       </div>
     )
   }
@@ -304,16 +334,16 @@ export default function AdminPage() {
   if (!authed) {
     return (
       <div style={{
-        minHeight: '100vh', background: bg, display: 'flex',
+        minHeight: '100vh', background: c.bg, display: 'flex',
         alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', sans-serif",
       }}>
         <div style={{
-          background: card, border: `1px solid ${border}`, borderRadius: 16,
+          background: c.card, border: `1px solid ${c.border}`, borderRadius: 16,
           padding: '48px 40px', width: '100%', maxWidth: 400, textAlign: 'center',
         }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🌿</div>
-          <h1 style={{ color: text, fontSize: 22, fontWeight: 700, margin: '0 0 4px' }}>Blog Admin</h1>
-          <p style={{ color: muted, fontSize: 13, margin: '0 0 32px' }}>hasnanenawaz.in</p>
+          <h1 style={{ color: c.text, fontSize: 22, fontWeight: 700, margin: '0 0 4px' }}>Blog Admin</h1>
+          <p style={{ color: c.muted, fontSize: 13, margin: '0 0 32px' }}>hasnanenawaz.in</p>
           <input
             type="password"
             placeholder="Enter admin password"
@@ -322,17 +352,17 @@ export default function AdminPage() {
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && login()}
             style={{
               width: '100%', padding: '13px 16px', borderRadius: 10,
-              border: `1.5px solid ${border}`, background: bg,
-              color: text, fontSize: 15, outline: 'none', boxSizing: 'border-box',
+              border: `1.5px solid ${c.border}`, background: c.inputBg,
+              color: c.text, fontSize: 15, outline: 'none', boxSizing: 'border-box',
               marginBottom: 16,
             }}
           />
-          {loginError && <p style={{ color: '#ff6b6b', fontSize: 13, marginBottom: 12 }}>{loginError}</p>}
+          {loginError && <p style={{ color: c.error, fontSize: 13, marginBottom: 12 }}>{loginError}</p>}
           <button
             onClick={login}
             style={{
               width: '100%', padding: '13px', borderRadius: 10, border: 'none',
-              background: '#2e7d52', color: '#fff', fontWeight: 700,
+              background: c.accent, color: c.accentText, fontWeight: 700,
               fontSize: 15, cursor: 'pointer',
             }}
           >Login →</button>
@@ -342,28 +372,28 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: bg, fontFamily: "'Segoe UI', sans-serif", color: text }}>
+    <div style={{ minHeight: '100vh', background: c.bg, fontFamily: "'Segoe UI', sans-serif", color: c.text }}>
       <header style={{
-        background: card, borderBottom: `1px solid ${border}`,
+        background: c.card, borderBottom: `1px solid ${c.border}`,
         padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 22 }}>🌿</span>
           <div>
-            <span style={{ fontWeight: 700, fontSize: 16, color: text }}>Blog Admin</span>
-            <span style={{ fontSize: 12, color: muted, display: 'block' }}>hasnanenawaz.in</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: c.text }}>Blog Admin</span>
+            <span style={{ fontSize: 12, color: c.muted, display: 'block' }}>hasnanenawaz.in</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <a href="/blog" target="_blank" rel="noopener noreferrer"
-            style={{ color: muted, fontSize: 13, textDecoration: 'none' }}>
+            style={{ color: c.muted, fontSize: 13, textDecoration: 'none' }}>
             View Live Blog ↗
           </a>
           <button
             onClick={logout}
             style={{
-              padding: '8px 16px', borderRadius: 8, border: `1px solid ${border}`,
-              background: 'transparent', color: muted, cursor: 'pointer', fontSize: 13,
+              padding: '8px 16px', borderRadius: 8, border: `1px solid ${c.border}`,
+              background: 'transparent', color: c.muted, cursor: 'pointer', fontSize: 13,
             }}
           >Logout</button>
         </div>
@@ -375,18 +405,19 @@ export default function AdminPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
               <button
                 onClick={() => { setView('list'); setEditing(null) }}
-                style={{ background: 'none', border: 'none', color: muted, cursor: 'pointer', fontSize: 20 }}
+                style={{ background: 'none', border: 'none', color: c.muted, cursor: 'pointer', fontSize: 20 }}
               >←</button>
-              <h2 style={{ margin: 0, fontSize: 22, color: text }}>
+              <h2 style={{ margin: 0, fontSize: 22, color: c.text }}>
                 {view === 'edit' ? '✏️ Edit Blog' : '✍️ New Blog'}
               </h2>
             </div>
-            <div style={{ background: card, border: `1px solid ${border}`, borderRadius: 16, padding: 32 }}>
+            <div style={{ background: c.card, border: `1px solid ${c.border}`, borderRadius: 16, padding: 32 }}>
               <BlogForm
                 initial={editing}
                 onSave={saveBlog}
                 onCancel={() => { setView('list'); setEditing(null) }}
                 saving={saving}
+                c={c}
               />
             </div>
           </div>
@@ -395,32 +426,32 @@ export default function AdminPage() {
         {view === 'list' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-              <h2 style={{ margin: 0, fontSize: 22, color: text }}>Your Blogs</h2>
+              <h2 style={{ margin: 0, fontSize: 22, color: c.text }}>Your Blogs</h2>
               <button
                 onClick={() => { setEditing(null); setView('new') }}
                 style={{
                   padding: '11px 22px', borderRadius: 10, border: 'none',
-                  background: '#2e7d52', color: '#fff', fontWeight: 700,
+                  background: c.accent, color: c.accentText, fontWeight: 700,
                   fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
                 }}
               >+ New Blog</button>
             </div>
 
-            {loading && <p style={{ color: muted, textAlign: 'center' }}>Loading blogs...</p>}
+            {loading && <p style={{ color: c.muted, textAlign: 'center' }}>Loading blogs...</p>}
             {!loading && blogs.length === 0 && (
               <div style={{
-                background: card, border: `1px dashed ${border}`, borderRadius: 16,
+                background: c.card, border: `1px dashed ${c.border}`, borderRadius: 16,
                 padding: '60px 24px', textAlign: 'center',
               }}>
                 <div style={{ fontSize: 48, marginBottom: 12 }}>📝</div>
-                <p style={{ color: muted, fontSize: 16 }}>No blogs yet. Create your first one!</p>
+                <p style={{ color: c.muted, fontSize: 16 }}>No blogs yet. Create your first one!</p>
               </div>
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {blogs.map(blog => (
                 <div key={blog.id} style={{
-                  background: card, border: `1px solid ${border}`, borderRadius: 14,
+                  background: c.card, border: `1px solid ${c.border}`, borderRadius: 14,
                   padding: 24, display: 'flex', gap: 20, alignItems: 'flex-start',
                 }}>
                   {blog.cover_image ? (
@@ -429,7 +460,7 @@ export default function AdminPage() {
                       style={{ width: 90, height: 70, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
                   ) : (
                     <div style={{
-                      width: 90, height: 70, borderRadius: 8, background: '#1a3328',
+                      width: 90, height: 70, borderRadius: 8, background: c.placeholder,
                       display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                     }}>
                       <span style={{ fontSize: 24 }}>📄</span>
@@ -437,20 +468,20 @@ export default function AdminPage() {
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                      <h3 style={{ margin: 0, fontSize: 16, color: text, fontWeight: 600 }}>{blog.title}</h3>
+                      <h3 style={{ margin: 0, fontSize: 16, color: c.text, fontWeight: 600 }}>{blog.title}</h3>
                       <span style={{
                         padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-                        background: blog.published ? '#1a4a2e' : '#2a1a0a',
-                        color: blog.published ? '#5cb87a' : '#d4873a',
-                        border: `1px solid ${blog.published ? '#2e7d52' : '#7a4a1a'}`,
+                        background: blog.published ? c.pubBg : c.draftBg,
+                        color: blog.published ? c.pubText : c.draftText,
+                        border: `1px solid ${blog.published ? c.pubBorder : c.draftBorder}`,
                       }}>
                         {blog.published ? 'Published' : 'Draft'}
                       </span>
                     </div>
                     {blog.excerpt && (
-                      <p style={{ margin: '0 0 10px', color: muted, fontSize: 13, lineHeight: 1.5 }}>{blog.excerpt}</p>
+                      <p style={{ margin: '0 0 10px', color: c.muted, fontSize: 13, lineHeight: 1.5 }}>{blog.excerpt}</p>
                     )}
-                    <p style={{ margin: 0, color: '#4a7a5e', fontSize: 12 }}>
+                    <p style={{ margin: 0, color: c.disabledText, fontSize: 12 }}>
                       Updated {new Date(blog.updated_at).toLocaleDateString('en-IN')}
                     </p>
                   </div>
@@ -458,8 +489,8 @@ export default function AdminPage() {
                     <button
                       onClick={() => togglePublish(blog)}
                       style={{
-                        padding: '8px 14px', borderRadius: 8, border: `1px solid ${border}`,
-                        background: 'transparent', color: muted, cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                        padding: '8px 14px', borderRadius: 8, border: `1px solid ${c.border}`,
+                        background: 'transparent', color: c.muted, cursor: 'pointer', fontSize: 12, fontWeight: 600,
                       }}
                     >
                       {blog.published ? 'Unpublish' : 'Publish'}
@@ -470,8 +501,8 @@ export default function AdminPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
-                          padding: '8px 14px', borderRadius: 8, border: `1px solid ${border}`,
-                          background: 'transparent', color: muted, cursor: 'pointer', fontSize: 12,
+                          padding: '8px 14px', borderRadius: 8, border: `1px solid ${c.border}`,
+                          background: 'transparent', color: c.muted, cursor: 'pointer', fontSize: 12,
                           fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center',
                         }}
                       >View ↗</a>
@@ -480,14 +511,14 @@ export default function AdminPage() {
                       onClick={() => { setEditing(blog); setView('edit') }}
                       style={{
                         padding: '8px 16px', borderRadius: 8, border: 'none',
-                        background: '#1e4a35', color: green, cursor: 'pointer', fontSize: 12, fontWeight: 700,
+                        background: c.editBg, color: c.editText, cursor: 'pointer', fontSize: 12, fontWeight: 700,
                       }}
                     >Edit</button>
                     <button
                       onClick={() => setDeleteConfirm(blog.id)}
                       style={{
                         padding: '8px 14px', borderRadius: 8, border: 'none',
-                        background: '#2a1010', color: '#e05252', cursor: 'pointer', fontSize: 12, fontWeight: 700,
+                        background: c.delBg, color: c.delText, cursor: 'pointer', fontSize: 12, fontWeight: 700,
                       }}
                     >Delete</button>
                   </div>
@@ -504,18 +535,18 @@ export default function AdminPage() {
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
         }}>
           <div style={{
-            background: card, border: `1px solid ${border}`, borderRadius: 16,
+            background: c.card, border: `1px solid ${c.border}`, borderRadius: 16,
             padding: 36, maxWidth: 380, width: '90%', textAlign: 'center',
           }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>🗑️</div>
-            <h3 style={{ color: text, margin: '0 0 8px' }}>Delete Blog?</h3>
-            <p style={{ color: muted, fontSize: 14, margin: '0 0 28px' }}>This cannot be undone.</p>
+            <h3 style={{ color: c.text, margin: '0 0 8px' }}>Delete Blog?</h3>
+            <p style={{ color: c.muted, fontSize: 14, margin: '0 0 28px' }}>This cannot be undone.</p>
             <div style={{ display: 'flex', gap: 12 }}>
               <button
                 onClick={() => setDeleteConfirm(null)}
                 style={{
-                  flex: 1, padding: '12px', borderRadius: 10, border: `1px solid ${border}`,
-                  background: 'transparent', color: muted, cursor: 'pointer', fontWeight: 600,
+                  flex: 1, padding: '12px', borderRadius: 10, border: `1px solid ${c.border}`,
+                  background: 'transparent', color: c.muted, cursor: 'pointer', fontWeight: 600,
                 }}
               >Cancel</button>
               <button
