@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect, useRef, ChangeEvent, DragEvent, KeyboardEvent } from 'react'
-import { useTheme } from 'next-themes'
 import type { Blog } from '@/lib/supabase'
 
 // ─── Theme palettes ────────────────────────────────────────────────────────
