@@ -1,24 +1,30 @@
 "use client";
 
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function LoadingScreen() {
   const ref = useRef<HTMLDivElement>(null);
+  const [gone, setGone] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    const timeline = gsap.timeline();
-    timeline.to(element, {
+    const tl = gsap.timeline();
+    tl.to(element, {
       yPercent: -100,
       delay: 0.55,
       duration: 0.8,
       ease: "power4.inOut",
-      onComplete: () => element.remove(),
+      // Let React unmount the node — never call element.remove() directly
+      onComplete: () => setGone(true),
     });
+
+    return () => { tl.kill() };
   }, []);
+
+  if (gone) return null;
 
   return (
     <div
