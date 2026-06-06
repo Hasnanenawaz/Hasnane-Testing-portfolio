@@ -8,35 +8,43 @@ export const revalidate = 60
 type PageProps = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const { data } = await supabase
-    .from('blogs')
-    .select('title, excerpt, meta_title, meta_description, cover_image')
-    .eq('slug', slug)
-    .eq('published', true)
-    .single()
+  try {
+    const { slug } = await params
+    const { data } = await supabase
+      .from('blogs')
+      .select('title, excerpt, meta_title, meta_description, cover_image')
+      .eq('slug', slug)
+      .eq('published', true)
+      .single()
 
-  if (!data) return { title: 'Not Found' }
+    if (!data) return { title: 'Not Found' }
 
-  return {
-    title: data.meta_title ?? data.title,
-    description: data.meta_description ?? data.excerpt,
-    openGraph: {
+    return {
       title: data.meta_title ?? data.title,
-      description: data.meta_description ?? data.excerpt ?? undefined,
-      images: data.cover_image ? [data.cover_image] : [],
-    },
+      description: data.meta_description ?? data.excerpt,
+      openGraph: {
+        title: data.meta_title ?? data.title,
+        description: data.meta_description ?? data.excerpt ?? undefined,
+        images: data.cover_image ? [data.cover_image] : [],
+      },
+    }
+  } catch {
+    return { title: 'Blog' }
   }
 }
 
 async function getBlog(slug: string): Promise<Blog | null> {
-  const { data, error } = await supabase
-    .from('blogs')
-    .select('*')
-    .eq('slug', slug)
-    .eq('published', true)
-    .single()
-  return error ? null : data
+  try {
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('*')
+      .eq('slug', slug)
+      .eq('published', true)
+      .single()
+    return error ? null : data
+  } catch {
+    return null
+  }
 }
 
 export default async function BlogPostPage({ params }: PageProps) {

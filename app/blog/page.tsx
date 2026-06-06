@@ -10,13 +10,17 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 async function getBlogs(): Promise<Pick<Blog, 'id' | 'title' | 'slug' | 'excerpt' | 'cover_image' | 'created_at'>[]> {
-  const { data, error } = await supabase
-    .from('blogs')
-    .select('id, title, slug, excerpt, cover_image, created_at')
-    .eq('published', true)
-    .order('created_at', { ascending: false })
-  if (error) return []
-  return data ?? []
+  try {
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('id, title, slug, excerpt, cover_image, created_at')
+      .eq('published', true)
+      .order('created_at', { ascending: false })
+    if (error) return []
+    return data ?? []
+  } catch {
+    return []
+  }
 }
 
 export default async function BlogPage() {
