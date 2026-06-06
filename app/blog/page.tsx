@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 
 export const revalidate = 60
 
-async function getBlogs(): Promise<Pick<Blog, 'id' | 'title' | 'slug' | 'excerpt' | 'cover_image' | 'created_at'>[]> {
+type BlogCard = Pick<Blog, 'id' | 'title' | 'slug' | 'excerpt' | 'cover_image' | 'created_at'>
+
+async function getBlogs(): Promise<BlogCard[]> {
   try {
     const { data, error } = await supabase
       .from('blogs')
@@ -23,72 +25,81 @@ async function getBlogs(): Promise<Pick<Blog, 'id' | 'title' | 'slug' | 'excerpt
   }
 }
 
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  }).toUpperCase()
+}
+
 export default async function BlogPage() {
   const blogs = await getBlogs()
 
   return (
-    <main style={{
-      minHeight: '100vh',
-      background: '#0a0f0c',
-      fontFamily: "'Segoe UI', Georgia, sans-serif",
-      padding: '60px 24px',
-    }}>
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
-        <div style={{ marginBottom: 56, textAlign: 'center' }}>
-          <h1 style={{
-            fontSize: 42, fontWeight: 800, color: '#e8f5e9',
-            margin: '0 0 12px', letterSpacing: '-0.02em',
-          }}>Blog</h1>
-          <p style={{ color: '#7ab893', fontSize: 17, margin: 0 }}>
+    <main className="min-h-screen bg-[#f5f0e8] pt-24 pb-20">
+      <div className="container">
+
+        {/* ── Header ── */}
+        <div className="text-center mb-14">
+          <h1 className="font-display text-5xl md:text-6xl font-black text-[#1e3a24] mb-3">
+            Blog
+          </h1>
+          <p className="text-[#5a6b52] text-base md:text-lg max-w-sm mx-auto leading-relaxed">
             Social media insights, marketing tips &amp; real talk.
           </p>
+          <div className="w-10 h-[3px] bg-[#1e3a24] mx-auto mt-5 rounded" />
         </div>
 
+        {/* ── Empty state ── */}
         {blogs.length === 0 && (
-          <div style={{ textAlign: 'center', color: '#4a7a5e', fontSize: 16, paddingTop: 60 }}>
-            <p>No posts yet. Check back soon! 🌿</p>
+          <div className="text-center py-24">
+            <p className="text-[#5a6b52] text-lg">No posts yet — check back soon!</p>
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+        {/* ── Card grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {blogs.map(blog => (
-            <Link key={blog.id} href={`/blog/${blog.slug}`} style={{ textDecoration: 'none' }}>
-              <article style={{
-                background: '#0d1f18',
-                border: '1px solid #1a3328',
-                borderRadius: 16,
-                overflow: 'hidden',
-                display: 'flex',
-                transition: 'border-color 0.2s, transform 0.2s',
-              }}>
-                {blog.cover_image && (
-                  <div style={{ flexShrink: 0, width: 200 }}>
+            <Link key={blog.id} href={`/blog/${blog.slug}`} className="group block">
+              <article className="bg-white rounded-2xl overflow-hidden border border-[#e8e3d8] shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 flex flex-col h-full">
+
+                {/* Cover image */}
+                {blog.cover_image ? (
+                  <div className="aspect-video overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={blog.cover_image}
                       alt={blog.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
+                ) : (
+                  <div className="aspect-video bg-[#e8e3d8] flex items-center justify-center">
+                    <span className="text-4xl opacity-40">📝</span>
+                  </div>
                 )}
-                <div style={{ padding: '28px 32px', flex: 1 }}>
-                  <p style={{ color: '#4a7a5e', fontSize: 12, margin: '0 0 10px', fontWeight: 600, letterSpacing: '0.06em' }}>
-                    {new Date(blog.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+
+                {/* Card body */}
+                <div className="p-6 flex flex-col flex-1">
+                  <p className="text-[11px] font-bold tracking-widest text-[#7a8a6a] mb-2">
+                    {formatDate(blog.created_at)}
                   </p>
-                  <h2 style={{ color: '#e8f5e9', fontSize: 20, fontWeight: 700, margin: '0 0 10px', lineHeight: 1.3 }}>
+                  <h2 className="font-display font-bold text-[#1e3a24] text-lg leading-snug mb-2 line-clamp-2">
                     {blog.title}
                   </h2>
                   {blog.excerpt && (
-                    <p style={{ color: '#7ab893', fontSize: 14, margin: '0 0 16px', lineHeight: 1.6 }}>
+                    <p className="text-[#5a6b52] text-sm leading-relaxed line-clamp-3 mb-4 flex-1">
                       {blog.excerpt}
                     </p>
                   )}
-                  <span style={{ color: '#5cb87a', fontSize: 13, fontWeight: 600 }}>Read more →</span>
+                  <span className="text-sm font-bold text-[#1e3a24] mt-auto group-hover:underline">
+                    Read more →
+                  </span>
                 </div>
               </article>
             </Link>
           ))}
         </div>
+
       </div>
     </main>
   )
