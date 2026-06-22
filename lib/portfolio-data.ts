@@ -168,6 +168,33 @@ export const achievements = [
   },
 ];
 
+export const faqs = [
+  {
+    q: "Who is Hasnane Nawaz?",
+    a: "Hasnane Nawaz is a social media marketer and growth strategist based in Durg, Chhattisgarh, India. He builds engaged communities, generates qualified leads, and runs revenue-focused marketing campaigns across Telegram, WhatsApp, Facebook, and Meta Ads. He is also pursuing BA LLB, giving him a research and persuasion edge in content strategy.",
+  },
+  {
+    q: "What results has Hasnane Nawaz achieved?",
+    a: "Hasnane grew a Telegram and WhatsApp community from 10,000 to 50,000+ members in 4 months, raised a company's monthly revenue from Rs. 40,000 to Rs. 3,10,000 within 2 months by managing 30 sales callers, scaled a legal education community by 300% in 2 months, and grew a Facebook page from 1,000 to 7,000+ followers through Meta Ads campaigns.",
+  },
+  {
+    q: "What services does Hasnane Nawaz offer?",
+    a: "Hasnane offers social media marketing, community growth strategy, lead generation, content planning and copywriting, Meta Ads campaign management, CPC optimization, sales team coordination, and ROI-focused campaign execution. He is open to full-time roles, internships, and freelance projects.",
+  },
+  {
+    q: "Which companies has Hasnane Nawaz worked with?",
+    a: "Hasnane has worked with STAMP2FLY as Marketing & Sales Intern (Apr 2025 – Jan 2026), Budding Mariners as Marketing & Sales Head (Feb 2024 – Mar 2025), The Jus Anima as Social Media & Community Growth Manager (Mar 2025 – Aug 2025), Voodaz as Marketing & Sales Head (Sep 2024 – Nov 2024), and Cureable as Content Writer Intern (Dec 2023 – Mar 2024).",
+  },
+  {
+    q: "How can I hire or contact Hasnane Nawaz?",
+    a: "You can reach Hasnane at hasnanenawaz@gmail.com or call +91 8269786782. He is based in Durg, Chhattisgarh and is open to growth marketing roles, community management, freelance campaigns, and long-term collaborations.",
+  },
+  {
+    q: "What makes Hasnane Nawaz different from other marketers?",
+    a: "Hasnane combines the persuasion and research skills of a law student with the execution mindset of a sales operator. He does not just manage content — he builds repeatable systems around audience intent, lead capture, caller coordination, and conversion follow-through, producing measurable revenue outcomes.",
+  },
+]
+
 export const testimonials = [
   {
     quote:
