@@ -62,7 +62,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Script
           id="person-jsonld"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteConfig.jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteConfig.personSchema) }}
+        />
+        <Script
+          id="website-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteConfig.websiteSchema) }}
         />
         <ClientProviders>
           <Navbar />

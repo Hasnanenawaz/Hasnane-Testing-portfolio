@@ -19,11 +19,15 @@ export const siteConfig = {
     "Durg Chhattisgarh",
     "marketing portfolio",
   ],
-  jsonLd: {
+  personSchema: {
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Hasnane Nawaz",
+    url: "https://www.hasnanenawaz.in",
+    image: "https://www.hasnanenawaz.in/hasnane.png",
     jobTitle: "Social Media Marketer and Growth Strategist",
+    description:
+      "Social media marketer building engaged communities, generating qualified leads, and executing revenue-focused campaigns.",
     email: "mailto:hasnanenawaz@gmail.com",
     telephone: "+91 8269786782",
     address: {
@@ -39,6 +43,22 @@ export const siteConfig = {
       "Community Growth",
       "Meta Ads",
       "Sales Operations",
+      "Campaign Planning",
+      "Copywriting",
+      "CPC Optimization",
     ],
+  },
+  websiteSchema: {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Hasnane Nawaz Portfolio",
+    url: "https://www.hasnanenawaz.in",
+    description:
+      "Portfolio of Hasnane Nawaz, social media marketer and growth strategist.",
+    author: {
+      "@type": "Person",
+      name: "Hasnane Nawaz",
+      url: "https://www.hasnanenawaz.in",
+    },
   },
 };

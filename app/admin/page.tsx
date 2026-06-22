@@ -264,6 +264,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState('')
 
   useEffect(() => {
     fetch('/api/blogs?admin=true')
@@ -308,13 +309,25 @@ export default function AdminPage() {
 
   async function saveBlog(form: BlogFormData) {
     setSaving(true)
+    setSaveError('')
     const method = editing?.id ? 'PUT' : 'POST'
     const url = editing?.id ? `/api/blogs/${editing.id}` : '/api/blogs'
-    const res = await fetch(url, {
-      method, headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    if (res.ok) { await loadBlogs(); setView('list'); setEditing(null) }
+    try {
+      const res = await fetch(url, {
+        method, headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (res.ok) {
+        await loadBlogs()
+        setView('list')
+        setEditing(null)
+      } else {
+        const data = await res.json().catch(() => ({})) as { error?: string }
+        setSaveError(data.error ?? `Save failed (status ${res.status})`)
+      }
+    } catch {
+      setSaveError('Network error — please check your connection and try again.')
+    }
     setSaving(false)
   }
 
@@ -523,7 +536,7 @@ export default function AdminPage() {
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {view === 'list' ? (
-              <button onClick={() => { setEditing(null); setView('new') }}
+              <button onClick={() => { setEditing(null); setView('new'); setSaveError('') }}
                 style={{
                   padding: '7px 16px', borderRadius: 8,
                   border: `1.5px solid rgba(255,255,255,0.4)`,
@@ -566,10 +579,19 @@ export default function AdminPage() {
             <h1 style={{ color: c.text, fontSize: 24, fontWeight: 800, margin: '0 0 28px' }}>
               {view === 'edit' ? 'Edit blog' : 'New blog'}
             </h1>
+            {saveError && (
+              <div style={{
+                background: '#fff2f2', border: '1px solid #fca5a5',
+                borderRadius: 10, padding: '14px 18px', marginBottom: 20,
+                color: c.error, fontSize: 13, lineHeight: 1.5,
+              }}>
+                <strong>Error:</strong> {saveError}
+              </div>
+            )}
             <BlogForm
               initial={editing}
               onSave={saveBlog}
-              onCancel={() => { setView('list'); setEditing(null) }}
+              onCancel={() => { setView('list'); setEditing(null); setSaveError('') }}
               saving={saving}
             />
           </div>
@@ -603,7 +625,7 @@ export default function AdminPage() {
               }}>
                 <div style={{ fontSize: 44, marginBottom: 14 }}>&#x1F4DD;</div>
                 <p style={{ color: c.muted, fontSize: 16, marginBottom: 20 }}>No blogs yet.</p>
-                <button onClick={() => { setEditing(null); setView('new') }}
+                <button onClick={() => { setEditing(null); setView('new'); setSaveError('') }}
                   style={{
                     padding: '11px 24px', borderRadius: 10, border: 'none',
                     background: c.btnPrimary, color: c.btnPrimaryText,
@@ -696,7 +718,7 @@ export default function AdminPage() {
                       </a>
                     )}
 
-                    <button onClick={() => { setEditing(blog); setView('edit') }}
+                    <button onClick={() => { setEditing(blog); setView('edit'); setSaveError('') }}
                       style={{
                         padding: '7px 16px', borderRadius: 8, border: 'none',
                         background: c.btnEdit, color: c.btnEditText,
