@@ -9,6 +9,13 @@ import { Skills } from "@/components/sections/skills";
 import { Testimonials } from "@/components/sections/testimonials";
 import { faqs } from "@/lib/portfolio-data";
 import { siteConfig } from "@/lib/site-config";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: siteConfig.url,
+  },
+};
 
 export default function Home() {
   const faqSchema = {

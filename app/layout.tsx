@@ -50,9 +50,6 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     images: ["/og-image.png"],
   },
-  alternates: {
-    canonical: siteConfig.url,
-  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
