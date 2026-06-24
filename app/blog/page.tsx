@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { supabase, type Blog } from '@/lib/supabase'
+import { supabaseAdmin as supabase, type Blog } from '@/lib/supabase'
 import type { Metadata } from 'next'
 import { siteConfig } from '@/lib/site-config'
 

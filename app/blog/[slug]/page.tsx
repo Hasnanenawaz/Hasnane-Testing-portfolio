@@ -1,4 +1,4 @@
-import { supabase, type Blog } from '@/lib/supabase'
+import { supabaseAdmin as supabase, type Blog } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
