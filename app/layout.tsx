@@ -54,7 +54,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en-IN" suppressHydrationWarning>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
         <Script
           id="person-jsonld"
@@ -65,6 +65,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           id="website-jsonld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteConfig.websiteSchema) }}
+        />
+        <Script
+          id="service-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteConfig.professionalServiceSchema) }}
         />
         <ClientProviders>
           <Navbar />

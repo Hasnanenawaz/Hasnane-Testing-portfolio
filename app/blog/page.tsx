@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     description: 'Social media marketing insights, community growth tips, and real talk from Hasnane Nawaz.',
     url: `${siteConfig.url}/blog`,
     type: 'website',
+    locale: 'en_IN',
   },
 }
 
@@ -47,11 +48,14 @@ export default async function BlogPage() {
   const blogCollectionSchema = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
+    '@id': `${siteConfig.url}/blog#blog`,
     name: 'Hasnane Nawaz Blog',
     description: 'Social media marketing insights, community growth tips, and real talk.',
     url: `${siteConfig.url}/blog`,
+    inLanguage: 'en-IN',
     author: {
       '@type': 'Person',
+      '@id': `${siteConfig.url}/#person`,
       name: 'Hasnane Nawaz',
       url: siteConfig.url,
     },

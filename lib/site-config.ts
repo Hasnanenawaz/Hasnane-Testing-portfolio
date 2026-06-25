@@ -18,23 +18,36 @@ export const siteConfig = {
     "Meta Ads",
     "Durg Chhattisgarh",
     "marketing portfolio",
+    "social media marketing India",
+    "small business marketing India",
   ],
+  // Update linkedin URL if your profile slug differs
+  socialLinks: {
+    linkedin: "https://www.linkedin.com/in/hasnane-nawaz",
+  },
   personSchema: {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": "https://www.hasnanenawaz.in/#person",
     name: "Hasnane Nawaz",
     url: "https://www.hasnanenawaz.in",
     image: "https://www.hasnanenawaz.in/hasnane.png",
     jobTitle: "Social Media Marketer and Growth Strategist",
     description:
-      "Social media marketer building engaged communities, generating qualified leads, and executing revenue-focused campaigns.",
+      "Social media marketer building engaged communities, generating qualified leads, and executing revenue-focused campaigns for small businesses in India.",
     email: "mailto:hasnanenawaz@gmail.com",
     telephone: "+91 8269786782",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Durg",
       addressRegion: "Chhattisgarh",
+      postalCode: "491001",
       addressCountry: "IN",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 21.1938,
+      longitude: 81.2771,
     },
     knowsAbout: [
       "Social Media Marketing",
@@ -47,18 +60,76 @@ export const siteConfig = {
       "Copywriting",
       "CPC Optimization",
     ],
+    knowsLanguage: "en",
+    areaServed: [
+      { "@type": "State", name: "Chhattisgarh" },
+      { "@type": "Country", name: "India" },
+    ],
+    sameAs: [
+      "https://www.linkedin.com/in/hasnane-nawaz",
+    ],
+    hasOccupation: {
+      "@type": "Occupation",
+      name: "Social Media Marketer",
+      description:
+        "Social media marketing, community growth strategy, lead generation, and Meta Ads campaign management",
+      occupationLocation: [
+        { "@type": "AdministrativeArea", name: "Chhattisgarh" },
+        { "@type": "Country", name: "India" },
+      ],
+    },
   },
   websiteSchema: {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": "https://www.hasnanenawaz.in/#website",
     name: "Hasnane Nawaz Portfolio",
     url: "https://www.hasnanenawaz.in",
     description:
       "Portfolio of Hasnane Nawaz, social media marketer and growth strategist.",
+    inLanguage: "en-IN",
     author: {
       "@type": "Person",
-      name: "Hasnane Nawaz",
-      url: "https://www.hasnanenawaz.in",
+      "@id": "https://www.hasnanenawaz.in/#person",
+    },
+  },
+  professionalServiceSchema: {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "@id": "https://www.hasnanenawaz.in/#service",
+    name: "Hasnane Nawaz — Social Media Marketing",
+    url: "https://www.hasnanenawaz.in",
+    description:
+      "Social media marketing, community growth strategy, lead generation, and Meta Ads campaign management for small businesses in India.",
+    image: "https://www.hasnanenawaz.in/hasnane.png",
+    telephone: "+91 8269786782",
+    email: "hasnanenawaz@gmail.com",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Durg",
+      addressRegion: "Chhattisgarh",
+      postalCode: "491001",
+      addressCountry: "IN",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 21.1938,
+      longitude: 81.2771,
+    },
+    areaServed: [
+      { "@type": "State", name: "Chhattisgarh" },
+      { "@type": "Country", name: "India" },
+    ],
+    serviceType: [
+      "Social Media Marketing",
+      "Community Growth",
+      "Lead Generation",
+      "Meta Ads",
+      "Content Strategy",
+    ],
+    founder: {
+      "@type": "Person",
+      "@id": "https://www.hasnanenawaz.in/#person",
     },
   },
 };

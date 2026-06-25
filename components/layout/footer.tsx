@@ -1,4 +1,4 @@
-import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowUpRight, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import { siteConfig } from "@/lib/site-config";
 
@@ -38,6 +38,14 @@ export function Footer() {
           <span className="inline-flex items-center gap-2">
             <MapPin size={16} /> {siteConfig.location}
           </span>
+          <Link
+            className="inline-flex items-center gap-2 hover:text-primary"
+            href={siteConfig.socialLinks.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Linkedin size={16} /> LinkedIn <ArrowUpRight size={14} />
+          </Link>
           <p className="pt-4 text-background/55">Designed for recruiters, founders, and teams who care about growth.</p>
         </div>
       </div>

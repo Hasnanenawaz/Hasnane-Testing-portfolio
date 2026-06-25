@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blog Post Builder · hasnanenawaz.in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EEE2; --paper-2:#EBE3D3; --rule:#D6CBB4;
+    --ink:#262B20; --ink-soft:#5A6150;
+    --forest:#2E4A33; --forest-deep:#1C2E20; --marigold:#BE862A;
+    --ui:'Inter',system-ui,sans-serif;
+    --display:'Bricolage Grotesque',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--ui);background:var(--paper-2);color:var(--ink);
+    -webkit-font-smoothing:antialiased}
+
+  /* top bar */
+  .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;
+    justify-content:space-between;gap:16px;flex-wrap:wrap;
+    padding:14px 22px;background:var(--forest-deep);color:var(--paper)}
+  .topbar .brand{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.01em}
+  .topbar .brand small{display:block;font-family:var(--ui);font-weight:400;
+    font-size:11.5px;letter-spacing:.04em;color:#A9B39C;margin-top:2px}
+  .exports{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .toggle{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#CFD6C2}
+  .toggle input{accent-color:var(--marigold);width:15px;height:15px}
+  .btn{font-family:var(--ui);font-size:13px;font-weight:600;border-radius:8px;
+    padding:9px 15px;cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap}
+  .btn-gold{background:var(--marigold);color:#241a06}
+  .btn-gold:hover{background:#cd9333}
+  .btn-line{background:transparent;color:var(--paper);border-color:rgba(244,238,226,.32)}
+  .btn-line:hover{border-color:var(--paper)}
+
+  /* layout */
+  .app{display:grid;grid-template-columns:minmax(0,480px) 1fr;gap:0;
+    height:calc(100vh - 60px);min-height:520px}
+  .panel{overflow-y:auto;padding:22px;border-right:1px solid var(--rule);background:var(--paper)}
+  .preview-wrap{background:#E4DBC9;overflow:hidden;position:relative}
+  iframe{width:100%;height:100%;border:0;display:block;background:var(--paper)}
+
+  /* control groups */
+  .group{margin-bottom:22px}
+  .group > .glabel{font-size:11px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:12px;display:flex;align-items:center;gap:9px}
+  .group > .glabel::after{content:"";flex:1;height:1px;background:var(--rule)}
+
+  label.f{display:block;margin-bottom:11px}
+  label.f .t{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;letter-spacing:.02em}
+  input.x,textarea.x,select.x{width:100%;font-family:var(--ui);font-size:13.5px;color:var(--ink);
+    background:#fff;border:1px solid var(--rule);border-radius:8px;padding:9px 11px;line-height:1.45}
+  textarea.x{resize:vertical;min-height:74px;font-family:'Newsreader',serif;font-size:15px}
+  input.x:focus,textarea.x:focus,select.x:focus{outline:none;border-color:var(--forest)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* block cards */
+  .block{background:#fff;border:1px solid var(--rule);border-radius:11px;padding:14px;margin-bottom:12px}
+  .block .bhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+  .block .btype{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--forest)}
+  .block .btools{display:flex;gap:4px}
+  .iconbtn{width:26px;height:26px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);
+    cursor:pointer;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1}
+  .iconbtn:hover{border-color:var(--forest);color:var(--forest)}
+  .iconbtn.del:hover{border-color:#9b3d2e;color:#9b3d2e}
+  .iconbtn:disabled{opacity:.3;cursor:not-allowed}
+
+  /* add menu */
+  .addmenu{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .addbtn{font-size:12.5px;font-weight:500;color:var(--forest);background:var(--paper);
+    border:1px dashed var(--rule);border-radius:999px;padding:8px 13px;cursor:pointer;transition:.15s}
+  .addbtn:hover{border-style:solid;border-color:var(--forest);background:#fff}
+  .addbtn b{font-weight:700;color:var(--marigold);margin-right:5px}
+
+  .hint{font-size:12px;color:var(--ink-soft);line-height:1.5;background:var(--paper-2);
+    border-radius:8px;padding:11px 13px;margin-bottom:18px}
+  .hint b{color:var(--ink)}
+  .mini{font-size:11px;color:var(--ink-soft);margin-top:4px;line-height:1.4}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--forest-deep);color:var(--paper);font-size:13px;font-weight:500;
+    padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr;height:auto}
+    .panel{border-right:0;border-bottom:1px solid var(--rule);max-height:none}
+    .preview-wrap{height:78vh}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Blog Post Builder<small>hasnanenawaz.in &middot; build a post, copy the HTML, paste into your admin panel</small></div>
+  <div class="exports">
+    <label class="toggle"><input type="checkbox" id="optStyles" checked> include styles</label>
+    <button class="btn btn-line" id="copyCss">Copy site CSS</button>
+    <button class="btn btn-line" id="download">Download page</button>
+    <button class="btn btn-gold" id="copyHtml">Copy post HTML</button>
+  </div>
+</div>
+
+<div class="app">
+  <div class="panel">
+
+    <div class="hint">
+      Fill the fields and the preview on the right updates live. Use the buttons under <b>Content blocks</b> to add a box, the arrows to reorder, and the cross to remove. When you are done, press <b>Copy post HTML</b> and paste it into your blog admin panel.
+    </div>
+
+    <div class="group">
+      <div class="glabel">Post details</div>
+      <label class="f"><span class="t">Category label</span><input class="x" id="m_category" value="Guide"></label>
+      <div class="row2">
+        <label class="f"><span class="t">Date</span><input class="x" id="m_date" value="10 June 2026"></label>
+        <label class="f"><span class="t">Read time</span><input class="x" id="m_read" value="12 min read"></label>
+      </div>
+      <label class="f"><span class="t">Title</span><textarea class="x" id="m_title" rows="2">Social Media Marketing for Small Businesses in India: A Practical 2026 Guide</textarea></label>
+      <label class="f"><span class="t">Standfirst (intro summary)</span><textarea class="x" id="m_stand" rows="3">Over 90% of India's small businesses accept digital payments, but only 13% market online. This guide shows owners in Chhattisgarh and across India exactly how to use WhatsApp, Instagram, and Facebook to get found by local customers and turn attention into sales.</textarea></label>
+      <div class="row2">
+        <label class="f"><span class="t">Author name</span><input class="x" id="m_author" value="Hasnane"></label>
+        <label class="f"><span class="t">Author tagline</span><input class="x" id="m_role" value="Notes on growing a business in tier-2 India"></label>
+      </div>
+      <label class="toggle" style="color:var(--ink-soft);font-size:12.5px;margin-top:2px">
+        <input type="checkbox" id="m_contents" checked> Show "In this guide" list (needs 2+ headings)
+      </label>
+    </div>
+
+    <div class="group">
+      <div class="glabel">Content blocks</div>
+      <div id="blocks"></div>
+      <div class="addmenu" id="addmenu">
+        <button class="addbtn" data-add="heading"><b>+</b>Heading</button>
+        <button class="addbtn" data-add="text"><b>+</b>Paragraph</button>
+        <button class="addbtn" data-add="statstrip"><b>+</b>Stat strip</button>
+        <button class="addbtn" data-add="bigstat"><b>+</b>Big stat</button>
+        <button class="addbtn" data-add="compare"><b>+</b>Comparison grid</button>
+        <button class="addbtn" data-add="local"><b>+</b>Local search box</button>
+        <button class="addbtn" data-add="quote"><b>+</b>Pull quote</button>
+        <button class="addbtn" data-add="cta"><b>+</b>Call to action</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="preview-wrap">
+    <iframe id="preview" title="Live preview"></iframe>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- state ---------------- */
+var uid=1;
+function nid(){return 'b'+(uid++);}
+
+var meta={category:'Guide',date:'10 June 2026',read:'12 min read',
+  title:"Social Media Marketing for Small Businesses in India: A Practical 2026 Guide",
+  stand:"Over 90% of India's small businesses accept digital payments, but only 13% market online. This guide shows owners in Chhattisgarh and across India exactly how to use WhatsApp, Instagram, and Facebook to get found by local customers and turn attention into sales.",
+  author:'Hasnane',role:'Notes on growing a business in tier-2 India',contents:true};
+
+var blocks=[
+  {id:nid(),type:'text',lead:true,body:"Here's a statistic that should stop every small business owner in India in their tracks. According to SIDBI's recent MSME survey, more than 90% of India's small businesses now accept digital payments. UPI is everywhere, from the biggest showroom in Raipur to the smallest kirana store in a Durg gali. But only around 13% of those same businesses actively market themselves online."},
+  {id:nid(),type:'compare',title:'The gap, drawn out',sub:'Picture 100 small businesses in India. Nearly all have gone digital at the cash counter. Almost none are bringing customers to it.',aLabel:'accept digital payments',aValue:90,bLabel:'market online',bValue:13},
+  {id:nid(),type:'text',body:"Read that again. Nearly every small business has gone digital at the cash counter, yet almost none are using social media to bring customers to that counter. That gap is the single biggest opportunity for small businesses in India right now, and social media marketing is how you seize it."},
+  {id:nid(),type:'heading',kicker:'The basics',text:'What Is Social Media Marketing for Small Businesses?'},
+  {id:nid(),type:'text',body:"For a large brand, social media is one channel among many. For a small business, it is often **the** channel: the most affordable, most measurable way to compete with bigger players without a bigger budget. You need the right two or three platforms, a consistent presence, content that speaks to your customer, and a simple way to turn conversations into customers."},
+  {id:nid(),type:'quote',text:"Your customers are already spending hours every day on their phones. Marketing is how you show up in those hours, in a way that makes them choose you over the shop down the road."},
+  {id:nid(),type:'heading',kicker:'The case',text:'Why It Matters for Indian Businesses in 2026'},
+  {id:nid(),type:'text',body:"**Your customers are already there, in enormous numbers.** India has over 500 million social media users as of 2026, second only to China. The average Indian spends over four hours a day on their smartphone. Your future customers are scrolling Instagram, watching YouTube, and chatting on WhatsApp right now, not reading the newspaper."},
+  {id:nid(),type:'statstrip',items:[{fig:'500M+',lab:'social media users in India as of 2026'},{fig:'530M+',lab:'WhatsApp users, the world’s largest market'},{fig:'~98%',lab:'open rate on WhatsApp, vs around 20% for email'}]},
+  {id:nid(),type:'text',body:"**It levels the playing field.** You can start with as little as ₹5,000 to ₹10,000 a month, and many of the most effective activities are completely free. Better still, every rupee is measurable: you can see exactly which post brought which enquiry."},
+  {id:nid(),type:'heading',kicker:'Closer to home',text:'The Chhattisgarh Edge: Why Local Businesses Have the Advantage'},
+  {id:nid(),type:'text',body:"**Local intent is huge and underserved.** When someone in Bhilai searches for the best cake shop, a salon in Durg, or a coaching class in Raipur, the businesses that show up on social media and Google are the ones that get the call. Most local businesses simply aren't there yet."},
+  {id:nid(),type:'local',head:'What your customers are already typing',queries:['best cake shop in Bhilai','ladies salon in Durg','coaching class in Raipur'],near:'near me'},
+  {id:nid(),type:'bigstat',fig:'46%',lab:'of all Google searches have local intent. The business that shows up gets the call.'},
+  {id:nid(),type:'cta',eyebrow:'Start this week',heading:"You don't need a big budget. You need to begin.",text:'Get the next guides on platforms, what to post, and a month-one plan, sent straight to your WhatsApp.',btn:'Get the WhatsApp guide'}
+];
+
+/* ---------------- helpers ---------------- */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function bold(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');}
+function paras(s,lead){
+  var parts=String(s||'').split(/\n\s*\n/).filter(function(p){return p.trim();});
+  return parts.map(function(p,i){
+    var cls=(lead&&i===0)?' class="lead"':'';
+    return '<p'+cls+'>'+bold(p).replace(/\n/g,'<br>')+'</p>';
+  }).join('\n');
+}
+
+/* ---------------- block -> html ---------------- */
+function blockHTML(b,headIndexRef){
+  if(b.type==='heading'){
+    headIndexRef.i++;
+    var hid='sec-'+headIndexRef.i;
+    var k=b.kicker?'<span class="kicker">'+esc(b.kicker)+'</span>':'';
+    return '<h2 id="'+hid+'">'+k+esc(b.text)+'</h2>';
+  }
+  if(b.type==='text') return paras(b.body,b.lead);
+  if(b.type==='quote') return '<blockquote class="pull">'+esc(b.text)+'</blockquote>';
+  if(b.type==='statstrip'){
+    var cells=(b.items||[]).filter(function(it){return it.fig||it.lab;}).map(function(it){
+      return '<div class="s"><div class="fig">'+esc(it.fig)+'</div><div class="lab">'+esc(it.lab)+'</div></div>';
+    }).join('');
+    return '<div class="statstrip">'+cells+'</div>';
+  }
+  if(b.type==='bigstat'){
+    return '<div class="stat-aside"><div class="fig">'+esc(b.fig)+'</div><div class="lab">'+esc(b.lab)+'</div></div>';
+  }
+  if(b.type==='local'){
+    var rows=(b.queries||[]).filter(function(q){return q.trim();}).map(function(q){
+      return '<div class="searchrow"><span class="pin">&#9679;</span> '+esc(q)+'<span class="near">'+esc(b.near||'near me')+'</span></div>';
+    }).join('');
+    return '<div class="localbox"><div class="l-head">'+esc(b.head)+'</div>'+rows+'</div>';
+  }
+  if(b.type==='compare'){
+    var a=Math.max(0,Math.min(100,parseInt(b.aValue,10)||0));
+    var bv=Math.max(0,Math.min(a,parseInt(b.bValue,10)||0));
+    var cells='';
+    for(var i=0;i<100;i++){
+      if(i<bv) cells+='<div class="cell mkt"></div>';
+      else if(i<a) cells+='<div class="cell pay"></div>';
+      else cells+='<div class="cell"></div>';
+    }
+    return '<div class="thesis">'+
+      (b.title?'<p class="thesis-head">'+esc(b.title)+'</p>':'')+
+      (b.sub?'<p class="thesis-sub">'+esc(b.sub)+'</p>':'')+
+      '<div class="grid100">'+cells+'</div>'+
+      '<div class="legend">'+
+        '<span><i class="ip"></i> <b>'+a+'</b> '+esc(b.aLabel)+'</span>'+
+        '<span><i class="im"></i> <b>'+bv+'</b> '+esc(b.bLabel)+'</span>'+
+      '</div></div>';
+  }
+  if(b.type==='cta'){
+    return '<div class="ctabox">'+
+      (b.eyebrow?'<p class="fc-eyebrow">'+esc(b.eyebrow)+'</p>':'')+
+      '<h3>'+esc(b.heading)+'</h3>'+
+      (b.text?'<p>'+esc(b.text)+'</p>':'')+
+      (b.btn?'<span class="fc-btn">'+esc(b.btn)+'</span>':'')+
+    '</div>';
+  }
+  return '';
+}
+
+/* ---------------- full body ---------------- */
+function bodyHTML(){
+  var headings=blocks.filter(function(b){return b.type==='heading';});
+  var headRef={i:0};
+  var out='';
+  out+='<header class="post-head">';
+  out+='<p class="eyebrow"><span>'+esc(meta.category)+'</span><span class="dot"></span><span class="muted">'+esc(meta.date)+'</span><span class="dot"></span><span class="muted">'+esc(meta.read)+'</span></p>';
+  out+='<h1>'+esc(meta.title)+'</h1>';
+  if(meta.stand) out+='<p class="standfirst">'+esc(meta.stand)+'</p>';
+  out+='<div class="byline"><div class="avatar">'+esc((meta.author||'?').trim().charAt(0).toUpperCase())+'</div><div><div class="who">'+esc(meta.author)+'</div><div class="role">'+esc(meta.role)+'</div></div></div>';
+  out+='</header>';
+
+  if(meta.contents && headings.length>=2){
+    var li='';var n=0;
+    blocks.forEach(function(b){if(b.type==='heading'){n++;li+='<li><a href="#sec-'+n+'"><span class="n">'+n+'</span> '+esc(b.text)+'</a></li>';}});
+    out+='<nav class="contents"><h4>In this guide</h4><ol>'+li+'</ol></nav>';
+  }
+
+  blocks.forEach(function(b){ out+='\n'+blockHTML(b,headRef); });
+  return '<div class="hn-article">\n'+out+'\n</div>';
+}
+
+/* ---------------- scoped css ---------------- */
+function scopedCSS(){
+  return "@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&display=swap');\n"+
+".hn-article{--paper:#F4EEE2;--paper-2:#EBE3D3;--rule:#D6CBB4;--ink:#262B20;--ink-soft:#5A6150;--forest:#2E4A33;--forest-deep:#1C2E20;--marigold:#BE862A;"+
+"max-width:42rem;margin:0 auto;font-family:'Newsreader',Georgia,serif;color:var(--ink);font-size:1.18rem;line-height:1.72;}\n"+
+".hn-article p{margin:0 0 1.45rem}\n"+
+".hn-article strong{font-weight:600;color:var(--forest)}\n"+
+".hn-article .eyebrow{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--marigold);margin:0 0 18px;display:flex;gap:13px;align-items:center;flex-wrap:wrap}\n"+
+".hn-article .eyebrow .dot{width:4px;height:4px;border-radius:50%;background:var(--rule)}\n"+
+".hn-article .eyebrow .muted{color:var(--ink-soft)}\n"+
+".hn-article h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--forest);font-size:clamp(2.1rem,5vw,3.3rem);line-height:1.05;letter-spacing:-.02em;margin:0 0 22px}\n"+
+".hn-article .standfirst{font-size:clamp(1.15rem,2.2vw,1.38rem);line-height:1.55;color:var(--ink-soft);margin:0 0 28px}\n"+
+".hn-article .byline{display:flex;align-items:center;gap:13px;padding-top:20px;border-top:1px solid var(--rule);margin-bottom:8px}\n"+
+".hn-article .avatar{width:42px;height:42px;border-radius:50%;flex:0 0 auto;background:var(--forest);color:var(--paper);font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:17px;display:flex;align-items:center;justify-content:center}\n"+
+".hn-article .byline .who{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink)}\n"+
+".hn-article .byline .role{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--ink-soft)}\n"+
+".hn-article .contents{font-family:'Inter',sans-serif;background:var(--paper-2);border:1px solid var(--rule);border-radius:12px;padding:18px 22px;margin:30px 0}\n"+
+".hn-article .contents h4{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 12px}\n"+
+".hn-article .contents ol{list-style:none;margin:0;padding:0}\n"+
+".hn-article .contents li{margin:0 0 4px}\n"+
+".hn-article .contents a{display:flex;gap:11px;align-items:baseline;text-decoration:none;color:var(--ink-soft);font-size:14px;padding:5px 0}\n"+
+".hn-article .contents a:hover{color:var(--forest)}\n"+
+".hn-article .contents .n{font-weight:700;color:var(--marigold);min-width:16px}\n"+
+".hn-article .lead{font-size:1.3rem;line-height:1.6;color:var(--ink)}\n"+
+".hn-article .lead::first-letter{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--forest);float:left;font-size:3.3em;line-height:.74;padding:6px 12px 0 0}\n"+
+".hn-article h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;color:var(--forest);font-size:clamp(1.5rem,3vw,1.95rem);line-height:1.12;letter-spacing:-.015em;margin:2.8rem 0 1.2rem;display:flex;flex-direction:column;gap:9px;scroll-margin-top:24px}\n"+
+".hn-article h2 .kicker{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--marigold);display:inline-flex;align-items:center;gap:10px}\n"+
+".hn-article h2 .kicker::before{content:'';width:24px;height:2px;background:var(--marigold);display:inline-block}\n"+
+".hn-article .pull{font-style:italic;color:var(--forest);font-size:clamp(1.35rem,3vw,1.7rem);line-height:1.4;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:1.5rem 0;margin:2.4rem 0}\n"+
+".hn-article .thesis{background:var(--paper-2);border:1px solid var(--rule);border-radius:14px;padding:clamp(20px,3.5vw,32px);margin:2rem 0}\n"+
+".hn-article .thesis-head{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 5px}\n"+
+".hn-article .thesis-sub{font-size:1.03rem;margin:0 0 20px;max-width:30rem;line-height:1.5}\n"+
+".hn-article .grid100{display:grid;grid-template-columns:repeat(20,1fr);gap:5px;max-width:420px}\n"+
+".hn-article .cell{aspect-ratio:1;border-radius:2.5px;background:#E3DAC8}\n"+
+".hn-article .cell.pay{background:var(--forest);opacity:.55}\n"+
+".hn-article .cell.mkt{background:var(--marigold)}\n"+
+".hn-article .legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink-soft)}\n"+
+".hn-article .legend span{display:inline-flex;align-items:center;gap:8px}\n"+
+".hn-article .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}\n"+
+".hn-article .legend .ip{background:var(--forest);opacity:.55}\n"+
+".hn-article .legend .im{background:var(--marigold)}\n"+
+".hn-article .legend b{color:var(--ink);font-weight:600}\n"+
+".hn-article .statstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:2rem 0}\n"+
+".hn-article .statstrip .s{background:var(--paper-2);padding:20px 18px}\n"+
+".hn-article .statstrip .fig{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--marigold);font-size:clamp(1.6rem,4vw,2.1rem);line-height:1;letter-spacing:-.02em}\n"+
+".hn-article .statstrip .lab{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--ink-soft);line-height:1.35;margin-top:8px}\n"+
+".hn-article .stat-aside{border-left:3px solid var(--marigold);padding:4px 0 4px 22px;margin:2rem 0}\n"+
+".hn-article .stat-aside .fig{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--forest);font-size:clamp(2.1rem,5vw,2.8rem);line-height:1;letter-spacing:-.02em}\n"+
+".hn-article .stat-aside .lab{font-family:'Inter',sans-serif;font-size:14px;color:var(--ink-soft);margin-top:8px;max-width:24rem;line-height:1.45}\n"+
+".hn-article .localbox{background:var(--paper-2);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;margin:2rem 0}\n"+
+".hn-article .localbox .l-head{font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:13px}\n"+
+".hn-article .searchrow{display:flex;align-items:center;gap:11px;padding:11px 14px;margin-bottom:9px;background:var(--paper);border:1px solid var(--rule);border-radius:999px;font-family:'Inter',sans-serif;font-size:14.5px;color:var(--ink)}\n"+
+".hn-article .searchrow:last-child{margin-bottom:0}\n"+
+".hn-article .searchrow .pin{color:var(--marigold)}\n"+
+".hn-article .searchrow .near{margin-left:auto;font-size:12px;color:var(--ink-soft);font-weight:500}\n"+
+".hn-article .ctabox{background:var(--forest-deep);color:var(--paper);border-radius:14px;padding:clamp(28px,5vw,44px);margin:2.6rem 0}\n"+
+".hn-article .ctabox .fc-eyebrow{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin:0 0 14px}\n"+
+".hn-article .ctabox h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(1.5rem,3.5vw,2.1rem);line-height:1.12;margin:0 0 14px;color:var(--paper)}\n"+
+".hn-article .ctabox p{font-size:1.05rem;color:#CFD6C2;margin:0 0 22px;line-height:1.55}\n"+
+".hn-article .ctabox .fc-btn{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;background:var(--marigold);color:#241a06;border-radius:999px;padding:12px 22px;display:inline-block}\n"+
+"@media(max-width:540px){.hn-article .grid100{grid-template-columns:repeat(10,1fr)}.hn-article .lead::first-letter{font-size:2.8em}}\n";
+}
+
+/* ---------------- render preview ---------------- */
+function previewDoc(){
+  return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'+
+    '<style>body{margin:0;background:#F4EEE2;padding:clamp(20px,5vw,48px) clamp(16px,4vw,40px)}'+scopedCSS()+'</style>'+
+    '</head><body>'+bodyHTML()+'</body></html>';
+}
+function refresh(){ document.getElementById('preview').srcdoc=previewDoc(); }
+
+/* ---------------- controls render ---------------- */
+function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+function field(labelText,value,onInput,multiline,attrs){
+  var wrap=el('label','f');
+  wrap.appendChild(el('span','t',labelText));
+  var inp=document.createElement(multiline?'textarea':'input');
+  inp.className='x';
+  if(multiline){inp.rows=multiline===true?3:multiline;}
+  inp.value=value==null?'':value;
+  if(attrs){for(var k in attrs)inp.setAttribute(k,attrs[k]);}
+  inp.addEventListener('input',function(){onInput(inp.value);refresh();});
+  wrap.appendChild(inp);
+  return wrap;
+}
+var TYPE_LABEL={heading:'Heading',text:'Paragraph',statstrip:'Stat strip',bigstat:'Big stat',compare:'Comparison grid',local:'Local search box',quote:'Pull quote',cta:'Call to action'};
+
+function renderControls(){
+  var host=document.getElementById('blocks');
+  host.innerHTML='';
+  blocks.forEach(function(b,idx){
+    var card=el('div','block');
+    var head=el('div','bhead');
+    head.appendChild(el('span','btype',TYPE_LABEL[b.type]||b.type));
+    var tools=el('div','btools');
+    var up=el('button','iconbtn','&#9650;');up.title='Move up';if(idx===0)up.disabled=true;
+    up.onclick=function(){var t=blocks[idx-1];blocks[idx-1]=blocks[idx];blocks[idx]=t;renderControls();refresh();};
+    var dn=el('button','iconbtn','&#9660;');dn.title='Move down';if(idx===blocks.length-1)dn.disabled=true;
+    dn.onclick=function(){var t=blocks[idx+1];blocks[idx+1]=blocks[idx];blocks[idx]=t;renderControls();refresh();};
+    var del=el('button','iconbtn del','&#10005;');del.title='Remove';
+    del.onclick=function(){blocks.splice(idx,1);renderControls();refresh();};
+    tools.appendChild(up);tools.appendChild(dn);tools.appendChild(del);
+    head.appendChild(tools);
+    card.appendChild(head);
+
+    if(b.type==='heading'){
+      card.appendChild(field('Kicker (small label above)',b.kicker,function(v){b.kicker=v;}));
+      card.appendChild(field('Heading text',b.text,function(v){b.text=v;},2));
+    } else if(b.type==='text'){
+      card.appendChild(field('Paragraph text  (**word** for emphasis, blank line for new paragraph)',b.body,function(v){b.body=v;},5));
+      var lead=el('label','toggle');lead.style.cssText='font-size:12px;color:var(--ink-soft)';
+      var cb=document.createElement('input');cb.type='checkbox';cb.checked=!!b.lead;cb.style.accentColor='var(--marigold)';
+      cb.onchange=function(){b.lead=cb.checked;refresh();};
+      lead.appendChild(cb);lead.appendChild(document.createTextNode(' Style as opening paragraph (drop cap)'));
+      card.appendChild(lead);
+    } else if(b.type==='quote'){
+      card.appendChild(field('Quote text',b.text,function(v){b.text=v;},3));
+    } else if(b.type==='statstrip'){
+      b.items=b.items||[];
+      for(var s=0;s<3;s++){(function(s){
+        if(!b.items[s])b.items[s]={fig:'',lab:''};
+        var rowWrap=el('div','row2');
+        rowWrap.appendChild(field('Figure '+(s+1),b.items[s].fig,function(v){b.items[s].fig=v;}));
+        rowWrap.appendChild(field('Label '+(s+1),b.items[s].lab,function(v){b.items[s].lab=v;}));
+        card.appendChild(rowWrap);
+      })(s);}
+      card.appendChild(el('div','mini','Leave a pair blank to drop that column. Up to 3.'));
+    } else if(b.type==='bigstat'){
+      card.appendChild(field('Big figure',b.fig,function(v){b.fig=v;}));
+      card.appendChild(field('Label',b.lab,function(v){b.lab=v;},2));
+    } else if(b.type==='compare'){
+      card.appendChild(field('Box title',b.title,function(v){b.title=v;}));
+      card.appendChild(field('Box subtitle',b.sub,function(v){b.sub=v;},2));
+      var r1=el('div','row2');
+      r1.appendChild(field('Value A (0-100)',b.aValue,function(v){b.aValue=v;},false,{type:'number',min:0,max:100}));
+      r1.appendChild(field('Label A',b.aLabel,function(v){b.aLabel=v;}));
+      card.appendChild(r1);
+      var r2=el('div','row2');
+      r2.appendChild(field('Value B (0-100)',b.bValue,function(v){b.bValue=v;},false,{type:'number',min:0,max:100}));
+      r2.appendChild(field('Label B',b.bLabel,function(v){b.bLabel=v;}));
+      card.appendChild(r2);
+      card.appendChild(el('div','mini','Out of 100. A is the larger group (green), B highlights a subset of it (gold).'));
+    } else if(b.type==='local'){
+      card.appendChild(field('Box heading',b.head,function(v){b.head=v;}));
+      card.appendChild(field('Search lines (one per line)',(b.queries||[]).join('\n'),function(v){b.queries=v.split('\n');},4));
+      card.appendChild(field('Tag on the right',b.near,function(v){b.near=v;}));
+    } else if(b.type==='cta'){
+      card.appendChild(field('Eyebrow',b.eyebrow,function(v){b.eyebrow=v;}));
+      card.appendChild(field('Heading',b.heading,function(v){b.heading=v;},2));
+      card.appendChild(field('Text',b.text,function(v){b.text=v;},2));
+      card.appendChild(field('Button label',b.btn,function(v){b.btn=v;}));
+    }
+    host.appendChild(card);
+  });
+}
+
+/* ---------------- add blocks ---------------- */
+var TEMPLATES={
+  heading:function(){return{id:nid(),type:'heading',kicker:'',text:'New section heading'};},
+  text:function(){return{id:nid(),type:'text',body:'Write your paragraph here. Use **two stars** around words you want emphasised.'};},
+  statstrip:function(){return{id:nid(),type:'statstrip',items:[{fig:'00%',lab:'what this number means'},{fig:'',lab:''},{fig:'',lab:''}]};},
+  bigstat:function(){return{id:nid(),type:'bigstat',fig:'00%',lab:'what this number means'};},
+  compare:function(){return{id:nid(),type:'compare',title:'The gap, drawn out',sub:'A one line setup for the comparison.',aLabel:'first group',aValue:90,bLabel:'second group',bValue:13};},
+  local:function(){return{id:nid(),type:'local',head:'What your customers are typing',queries:['service in your town','another search'],near:'near me'};},
+  quote:function(){return{id:nid(),type:'quote',text:'A short, memorable line worth pulling out.'};},
+  cta:function(){return{id:nid(),type:'cta',eyebrow:'Next step',heading:'A clear call to action.',text:'One line on what they get.',btn:'Button text'};}
+};
+document.getElementById('addmenu').addEventListener('click',function(e){
+  var t=e.target.closest('.addbtn'); if(!t)return;
+  var type=t.getAttribute('data-add');
+  blocks.push(TEMPLATES[type]());
+  renderControls();refresh();
+  document.querySelector('.panel').scrollTo({top:document.querySelector('.panel').scrollHeight,behavior:'smooth'});
+});
+
+/* ---------------- meta bindings ---------------- */
+function bindMeta(id,key){var e=document.getElementById(id);e.addEventListener('input',function(){meta[key]=e.value;refresh();});}
+bindMeta('m_category','category');bindMeta('m_date','date');bindMeta('m_read','read');
+bindMeta('m_title','title');bindMeta('m_stand','stand');bindMeta('m_author','author');bindMeta('m_role','role');
+document.getElementById('m_contents').addEventListener('change',function(e){meta.contents=e.target.checked;refresh();});
+
+/* ---------------- exports ---------------- */
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1700);}
+function copy(text,msg){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){toast(msg);},function(){fallbackCopy(text,msg);});}
+  else fallbackCopy(text,msg);
+}
+function fallbackCopy(text,msg){var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast(msg);}catch(e){toast('Copy failed, select manually');}document.body.removeChild(ta);}
+
+document.getElementById('copyHtml').addEventListener('click',function(){
+  var withStyles=document.getElementById('optStyles').checked;
+  var html=(withStyles?'<style>\n'+scopedCSS()+'</style>\n':'')+bodyHTML();
+  copy(html, withStyles?'Post HTML copied (styles included)':'Post HTML copied (no styles)');
+});
+document.getElementById('copyCss').addEventListener('click',function(){
+  copy(scopedCSS(),'Site CSS copied for your developer');
+});
+document.getElementById('download').addEventListener('click',function(){
+  var doc=previewDoc();
+  var blob=new Blob([doc],{type:'text/html'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(meta.title||'post').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)+'.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  toast('Standalone page downloaded');
+});
+
+/* ---------------- init ---------------- */
+renderControls();
+refresh();
+</script>
+</body>
+</html>
