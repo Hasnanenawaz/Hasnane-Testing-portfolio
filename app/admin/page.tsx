@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, ChangeEvent, DragEvent, KeyboardEvent } from 'react'
 import type { Blog } from '@/lib/supabase'
+import { BlogBuilder } from './BlogBuilder'
 
 // ─── Design tokens (always light / cream — no dark mode in admin) ────────────
 const c = {
@@ -179,10 +180,7 @@ function BlogForm({ initial, onSave, onCancel, saving }: {
 
           <div>
             <label style={lbl}>Content</label>
-            <textarea rows={16} value={form.content} onFocus={onFocusIn} onBlur={onFocusOut}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => set('content', e.target.value)}
-              placeholder="Write your blog post here…"
-              style={{ ...inp, resize: 'vertical', lineHeight: 1.8, fontFamily: 'inherit' }} />
+            <BlogBuilder value={form.content} onChange={v => set('content', v)} />
           </div>
 
           <div>
