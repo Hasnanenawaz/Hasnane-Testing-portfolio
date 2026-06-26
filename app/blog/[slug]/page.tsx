@@ -53,7 +53,7 @@ export async function generateStaticParams() {
     .from('blogs')
     .select('slug')
     .eq('published', true)
-  return (blogs ?? []).map(b => ({ slug: b.slug }))
+  return (blogs ?? []).filter(b => b.slug.length <= 200).map(b => ({ slug: b.slug }))
 }
 
 async function getBlog(slug: string): Promise<Blog | null> {

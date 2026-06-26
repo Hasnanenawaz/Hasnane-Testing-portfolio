@@ -86,6 +86,20 @@ function buildArticleHTML(meta: Meta, blocks: Block[]): string {
   return `<div class="hn-article">\n${out}\n</div>`
 }
 
+function buildArticleHTMLWithState(meta: Meta, blocks: Block[]): string {
+  return buildArticleHTML(meta, blocks) + `\n<!-- builder-state:${JSON.stringify({ meta, blocks })} -->`
+}
+
+function parseBuilderState(html: string): { meta: Meta; blocks: Block[] } | null {
+  const marker = '<!-- builder-state:'
+  const idx = html.lastIndexOf(marker)
+  if (idx === -1) return null
+  const start = idx + marker.length
+  const end = html.lastIndexOf(' -->')
+  if (end === -1 || end <= start) return null
+  try { return JSON.parse(html.slice(start, end)) } catch { return null }
+}
+
 // ─── Preview CSS (self-contained for iframe) ──────────────────────────────────
 const PREVIEW_CSS = `@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&display=swap');
 body{margin:0;background:#F4EEE2;padding:clamp(16px,4vw,36px)}
@@ -310,20 +324,25 @@ function BlockCard({ block, idx, total, onUpdate, onMove, onRemove }: {
 }
 
 // ─── Inner builder UI ─────────────────────────────────────────────────────────
-function BuilderUI({ onChange }: { onChange: (html: string) => void }) {
+function BuilderUI({ onChange, onCancel, initialMeta, initialBlocks }: {
+  onChange: (html: string) => void
+  onCancel?: () => void
+  initialMeta?: Meta
+  initialBlocks?: Block[]
+}) {
   const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
-  const [meta, setMeta] = useState<Meta>({
+  const [meta, setMeta] = useState<Meta>(initialMeta ?? {
     category: 'Guide', date: today, read: '5 min read',
     title: '', stand: '', author: 'Hasnane', role: 'Social Media Marketer', contents: true,
   })
-  const [blocks, setBlocks] = useState<Block[]>([])
+  const [blocks, setBlocks] = useState<Block[]>(initialBlocks ?? [])
   const [showMeta, setShowMeta] = useState(true)
   const metaRef = useRef(meta)
   const blocksRef = useRef(blocks)
   metaRef.current = meta
   blocksRef.current = blocks
 
-  function emit(m: Meta, bs: Block[]) { onChange(buildArticleHTML(m, bs)) }
+  function emit(m: Meta, bs: Block[]) { onChange(buildArticleHTMLWithState(m, bs)) }
 
   function updateMeta(patch: Partial<Meta>) {
     const next = { ...metaRef.current, ...patch }
@@ -352,7 +371,18 @@ function BuilderUI({ onChange }: { onChange: (html: string) => void }) {
       {/* Top bar */}
       <div style={{ background: S.forestDeep, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ color: S.paper, fontWeight: 600, fontSize: 13 }}>Blog Builder</span>
-        <span style={{ color: '#A9B39C', fontSize: 11 }}>Preview updates as you type</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ color: '#A9B39C', fontSize: 11 }}>Preview updates as you type</span>
+          {onCancel && (
+            <button type="button" onClick={onCancel} style={{
+              fontSize: 12, fontWeight: 600, color: S.paper, background: 'rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.2)', borderRadius: 6, padding: '4px 10px',
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              ← Cancel
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Split panel */}
@@ -433,19 +463,30 @@ function BuilderUI({ onChange }: { onChange: (html: string) => void }) {
 
 // ─── Public component ─────────────────────────────────────────────────────────
 export function BlogBuilder({ value, onChange }: { value: string; onChange: (html: string) => void }) {
-  const [cleared, setCleared] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const originalRef = useRef(value)
   const hasExisting = value.includes('hn-article')
 
-  if (hasExisting && !cleared) {
+  function handleEdit() {
+    originalRef.current = value
+    setEditing(true)
+  }
+
+  function handleCancel() {
+    onChange(originalRef.current)
+    setEditing(false)
+  }
+
+  if (hasExisting && !editing) {
     return (
       <div style={{ border: `1px solid ${S.rule}`, borderRadius: 11, overflow: 'hidden' }}>
         <div style={{ background: S.paper2, padding: '11px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: S.inkSoft }}>This post was built with the Blog Builder</span>
-          <button type="button" onClick={() => { setCleared(true); onChange('') }} style={{
-            fontSize: 12, fontWeight: 600, color: '#9b3d2e', background: 'none',
-            border: '1px solid #fca5a5', borderRadius: 6, padding: '5px 12px', cursor: 'pointer', fontFamily: 'inherit',
+          <button type="button" onClick={handleEdit} style={{
+            fontSize: 12, fontWeight: 600, color: S.forest, background: 'none',
+            border: `1px solid ${S.rule}`, borderRadius: 6, padding: '5px 12px', cursor: 'pointer', fontFamily: 'inherit',
           }}>
-            Clear &amp; rebuild
+            Edit
           </button>
         </div>
         <div dangerouslySetInnerHTML={{ __html: value }}
@@ -454,5 +495,18 @@ export function BlogBuilder({ value, onChange }: { value: string; onChange: (htm
     )
   }
 
-  return <BuilderUI onChange={onChange} />
+  const saved = parseBuilderState(value)
+  return (
+    <div>
+      {editing && !saved && (
+        <div style={{
+          background: '#fef9ec', border: '1px solid #f5d88a', borderRadius: 8,
+          padding: '10px 14px', marginBottom: 10, fontSize: 12, color: '#855a12', lineHeight: 1.5,
+        }}>
+          <strong>Note:</strong> The saved block data for this post couldn&apos;t be recovered — you&apos;ll need to rebuild the content from scratch. Click <strong>← Cancel</strong> in the builder header to go back without losing anything.
+        </div>
+      )}
+      <BuilderUI onChange={onChange} onCancel={editing ? handleCancel : undefined} initialMeta={saved?.meta} initialBlocks={saved?.blocks} />
+    </div>
+  )
 }
